@@ -15,7 +15,7 @@ export const extractTextFromImage = async (imageFile: File): Promise<string> => 
 
     // Create a worker for OCR processing
     const worker = await createWorker();
-
+    
     // Initialize the worker with English language
     await worker.loadLanguage('eng');
     await worker.initialize('eng');
