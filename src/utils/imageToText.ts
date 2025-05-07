@@ -16,7 +16,8 @@ export const extractTextFromImage = async (imageFile: File): Promise<string> => 
     // Create a worker for OCR processing
     const worker = await createWorker();
     
-    // Initialize the worker with English language
+    // Initialize the worker - no need for separate loadLanguage and initialize calls
+    // in the latest version of Tesseract.js
     await worker.loadLanguage('eng');
     await worker.initialize('eng');
     
