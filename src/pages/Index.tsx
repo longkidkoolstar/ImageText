@@ -48,7 +48,15 @@ const Index = () => {
       name: file.name
     }));
 
-    setSelectedImages(newImages);
+    setSelectedImages(prevImages => [...prevImages, ...newImages]);
+  };
+
+  const handleRemoveImage = (id: string) => {
+    const imageToRemove = selectedImages.find(image => image.id === id);
+    if (imageToRemove) {
+      URL.revokeObjectURL(imageToRemove.url);
+    }
+    setSelectedImages(prevImages => prevImages.filter(image => image.id !== id));
   };
 
   const processBatch = async () => {
@@ -131,6 +139,7 @@ const Index = () => {
               onImagesSelected={handleImagesSelected}
               selectedImages={selectedImages}
               onReset={handleReset}
+              onRemoveImage={handleRemoveImage}
               isProcessing={isProcessing}
               onDownloadResults={handleDownloadResults}
               hasResults={textResults.length > 0}

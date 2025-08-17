@@ -1,5 +1,5 @@
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Image, Upload, X, FileText, Download } from "lucide-react";
@@ -9,6 +9,7 @@ interface ImageUploaderProps {
   onImagesSelected: (files: File[]) => void;
   selectedImages: { id: string; url: string; name: string }[];
   onReset: () => void;
+  onRemoveImage: (id: string) => void;
   isProcessing: boolean;
   onDownloadResults: () => void;
   hasResults: boolean;
@@ -18,12 +19,39 @@ const ImageUploader = ({
   onImagesSelected,
   selectedImages,
   onReset,
+  onRemoveImage,
   isProcessing,
   onDownloadResults,
   hasResults
 }: ImageUploaderProps) => {
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handlePaste = (event: ClipboardEvent) => {
+      const items = event.clipboardData?.items;
+      if (items) {
+        const files: File[] = [];
+        for (let i = 0; i < items.length; i++) {
+          if (items[i].type.indexOf("image") !== -1) {
+            const file = items[i].getAsFile();
+            if (file) {
+              files.push(file);
+            }
+          }
+        }
+        if (files.length > 0) {
+          onImagesSelected(files);
+        }
+      }
+    };
+
+    window.addEventListener("paste", handlePaste);
+
+    return () => {
+      window.removeEventListener("paste", handlePaste);
+    };
+  }, [onImagesSelected]);
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -127,6 +155,15 @@ const ImageUploader = ({
                     />
                   </div>
                   <div className="flex-1 truncate text-sm">{image.name}</div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 ml-2 flex-shrink-0"
+                    onClick={() => onRemoveImage(image.id)}
+                    disabled={isProcessing}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
                 </div>
               ))}
             </div>
